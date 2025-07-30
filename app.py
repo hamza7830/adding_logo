@@ -37,9 +37,18 @@ def index():
         os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
         
         selected_language = request.form.get("language")
-        logo_filename = f"BBC_News_Linear_{selected_language}_HR_RGB.jpg"
-        logo_path = os.path.join("static", "logos", selected_language, "Linear", "Web", "RGB", logo_filename)
-        
+        # Construct the target directory
+        logo_dir = os.path.join("static", "logos", selected_language, "Linear", "Web", "RGB")
+
+        # Find any file ending with _HR_RGB.jpg in that folder
+        logo_filename = None
+        for fname in os.listdir(logo_dir):
+            if fname.endswith("_HR_RGB.jpg"):
+                logo_filename = fname
+                break
+
+        if logo_filename:
+            logo_path = os.path.join(logo_dir, logo_filename)
         # Uploaded files
         uploaded_files = request.files.getlist("uploaded_files")
         for file in uploaded_files:
@@ -99,10 +108,10 @@ def index():
         processed = True
         download_ready = os.path.exists(app.config['OUTPUT_FOLDER']) and any(fname.lower().endswith((".png", ".jpg", ".jpeg")) for fname in os.listdir(app.config['OUTPUT_FOLDER']))
 
-    return render_template("index.html",
-                           languages=languages,
-                           processed=processed,
-                           download_ready=download_ready)
+    if processed:
+        # After processing and files are ready
+        return redirect(url_for('index', download=1))
+    return render_template("index.html", languages=languages, processed=processed, download_ready=download_ready)
 
 @app.route('/download')
 def download():

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BBC Logo Stamper Tool (Flask)</title>
+    <style>
+        body { background-color: #f2f2f2; padding: 2rem 10rem; }
+        h1 { color: #a51c1c; font-weight: 700; }
+        .btn { background-color: #a51c1c; color: white; font-weight: bold; border-radius: 5px; padding: 0.5em 2em; border: none; }
+        .messages { margin-bottom: 1em; }
+        .messages .danger { color: #a51c1c; }
+        .messages .warning { color: #c7971e; }
+        .messages .success { color: #198754; }
+    </style>
+</head>
+<body>
+    <h1>BBC Logo Stamper Tool</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages">
+        {% for category, message in messages %}
+          <div class="{{category}}">{{message}}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" enctype="multipart/form-data">
+        <h3>Upload Images or Excel File</h3>
+        <input type="file" name="uploaded_files" multiple accept=".jpg,.jpeg,.png,.xlsx"><br><br>
+        
+        <h3>Paste Image URLs</h3>
+        <textarea name="url_input" rows="4" cols="70" placeholder="Paste image URLs here (one per line)"></textarea><br><br>
+        
+        <h3>Select Language</h3>
+        <select name="language" required>
+            {% for lang in languages %}
+                <option value="{{lang}}">{{lang}}</option>
+            {% endfor %}
+        </select><br><br>
+        
+        <button class="btn" type="submit">Process Images</button>
+    </form>
+
+    {% if download_ready %}
+        <h3>Download Processed Images</h3>
+        <a class="btn" href="{{ url_for('download') }}">Download All (ZIP)</a>
+    {% endif %}
+</body>
+</html>
